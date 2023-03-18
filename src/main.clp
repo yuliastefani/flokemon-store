@@ -18,11 +18,11 @@
 )
 
 (deffacts FLOKEMON_FIRE_FACTS
-	(FLOKEMON_FIRE (fireName "Rapidash") (fireDmg 500) (fireDfs 50) (fireLvl 10) (fireBurn 10) (firePrc 50000))
-	(FLOKEMON_FIRE (fireName "Magmar") (fireDmg 400) (fireDfs 120) (fireLvl 60) (fireBurn 40) (firePrc 200000))
-	(FLOKEMON_FIRE (fireName "Gloqlithe") (fireDmg 2100) (fireDfs 150) (fireLvl 65) (fireBurn 60) (firePrc 300000))
-	(FLOKEMON_FIRE (fireName "NineTales") (fireDmg 1400) (fireDfs 270) (fireLvl 80) (fireBurn 80) (firePrc 540000))
 	(FLOKEMON_FIRE (fireName "Charmeloen") (fireDmg 1200) (fireDfs 250) (fireLvl 85) (fireBurn 90) (firePrc 230000))
+	(FLOKEMON_FIRE (fireName "NineTales") (fireDmg 1400) (fireDfs 270) (fireLvl 80) (fireBurn 80) (firePrc 540000))
+	(FLOKEMON_FIRE (fireName "Gloqlithe") (fireDmg 2100) (fireDfs 150) (fireLvl 65) (fireBurn 60) (firePrc 300000))
+	(FLOKEMON_FIRE (fireName "Magmar") (fireDmg 400) (fireDfs 120) (fireLvl 60) (fireBurn 40) (firePrc 200000))
+	(FLOKEMON_FIRE (fireName "Rapidash") (fireDmg 500) (fireDfs 50) (fireLvl 10) (fireBurn 10) (firePrc 50000))
 )
 
 (deftemplate FLOKEMON_WATER
@@ -34,11 +34,11 @@
 )
 
 (deffacts FLOKEMON_WATER_FACTS
-	(FLOKEMON_WATER (waterName "Vaporeon") (waterDmg 900) (waterDfs 120) (waterLvl 45) (waterPrc 80000))
-	(FLOKEMON_WATER (waterName "Staryu") (waterDmg 800) (waterDfs 70) (waterLvl 30) (waterPrc 50000))
-	(FLOKEMON_WATER (waterName "Poliwhirl") (waterDmg 500) (waterDfs 90) (waterLvl 20) (waterPrc 250000))
-	(FLOKEMON_WATER (waterName "Goldluck") (waterDmg 2000) (waterDfs 250) (waterLvl 90) (waterPrc 200000))
 	(FLOKEMON_WATER (waterName "Blastoise") (waterDmg 1500) (waterDfs 200) (waterLvl 80) (waterPrc 150000))
+	(FLOKEMON_WATER (waterName "Goldluck") (waterDmg 2000) (waterDfs 250) (waterLvl 90) (waterPrc 200000))
+	(FLOKEMON_WATER (waterName "Poliwhirl") (waterDmg 500) (waterDfs 90) (waterLvl 20) (waterPrc 250000))
+	(FLOKEMON_WATER (waterName "Staryu") (waterDmg 800) (waterDfs 70) (waterLvl 30) (waterPrc 50000))
+	(FLOKEMON_WATER (waterName "Vaporeon") (waterDmg 900) (waterDfs 120) (waterLvl 45) (waterPrc 80000))
 )
 
 (deffunction menu ()
@@ -102,6 +102,8 @@
         (printout t "====================================================================================================" crlf)
         (printout t "|No.|Name                         |Damage    |Defense   |Level     |Burn Damage         |Price     |" crlf)
         (printout t "====================================================================================================" crlf)
+        (bind ?*num* 1)
+        (retract-string "(printFlokemonFire)")
         (assert(printFlokemonFire))
         (run)
         (printout t "====================================================================================================" crlf)
@@ -114,6 +116,7 @@
         (printout t "===============================================================================" crlf)
         (printout t "|No.|Name                         |Damage    |Defense   |Level     |Price     |" crlf)
         (printout t "===============================================================================" crlf)
+        (bind ?*num* 1)
         (retract-string "(printFlokemonWater)")
         (assert(printFlokemonWater))
         (run)
