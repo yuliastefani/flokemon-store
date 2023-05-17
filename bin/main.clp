@@ -1,5 +1,5 @@
-; 2301867873 - Yulia Stefani
 ; 2301911842 - Alyssa Imani
+; 2301867873 - Yulia Stefani
 
 
 (deffunction cls ()
@@ -461,17 +461,17 @@
         (printout t "Find Flokemon" crlf)
         (printout t "-----------------" crlf)
         (bind ?type "")
-        (while (and (eq (lexemep ?type) FALSE ) (neq (str-compare ?type "Fire") 0 ) (neq (str-compare ?type "Water") 0 ))
+        (while (and (neq (eq (lexemep ?type) FALSE ) (neq (str-compare ?type "Fire") 0 ) (neq (str-compare ?type "Water") 0 )))
             (printout t "Demanded type [Fire | Water]: ")
         	(bind ?type (read)))            
             
     	(bind ?power "")
-        (while (and (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 ))
+        (while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
             (printout t "Demanded power [Weak | Strong]: ")
         	(bind ?power (read)))            
             
 		(bind ?defense "")
-        (while (and (neq (eq (lexemep ?defense) FALSE ) (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 ))
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
             (printout t "Demanded defense [Soft | Hard]: ")
         	(bind ?defense (read)))
         
