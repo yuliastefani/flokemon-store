@@ -1,5 +1,5 @@
-; 2301867873 - Yulia Stefani
 ; 2301911842 - Alyssa Imani
+; 2301867873 - Yulia Stefani
 
 
 (deffunction cls ()
@@ -73,18 +73,20 @@
 
 (defrule viewRuleFlokemonFire
     (printFlokemonFire)
-	(FLOKEMON_FIRE (fireId ?fid) (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	(FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
 	=>
-    (format t "|%2d.|%-29s|%-10d|%-10d|%-10d|%-20d|%-10d|" ?fid ?fn ?fg ?fd ?fl ?fb ?fp)
+    (format t "|%2d.|%-29s|%-10d|%-10d|%-10d|%-20d|%-10d|" ?*num* ?fn ?fg ?fd ?fl ?fb ?fp)
     (printout t crlf)
+    (++ ?*num*)
 )
 
 (defrule viewRuleFlokemonWater
     (printFlokemonWater)
-	(FLOKEMON_WATER (waterId ?wid) (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	(FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
 	=>
-    (format t "|%2d.|%-29s|%-10d|%-10d|%-10d|%-10d|" ?wid ?wn ?wg ?wd ?wl ?wp)
+    (format t "|%2d.|%-29s|%-10d|%-10d|%-10d|%-10d|" ?*num* ?wn ?wg ?wd ?wl ?wp)
     (printout t crlf)
+    (++ ?*num*)
 )
 
 (defrule retractFlokemonFire
@@ -100,22 +102,32 @@
     (retract ?i))
 
 (defrule updateRuleFlokemonFire
-    (modifyFlokemonFire ?fid ?fn ?fg ?fd ?fl ?fb ?fp)
-    ?f<-(FLOKEMON_FIRE (fireId ?fid))
+    ?f<-(modifyFlokemonFire ?fid ?fn ?fg ?fd ?fl ?fb ?fp)
+    ?ff<-(FLOKEMON_FIRE)
     =>
-    (modify ?f (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp)))
+    (if(eq ?fid ?*num*)
+        then
+        (modify ?ff (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))      
+        (retract ?f)  
+    	(bind ?*num* 1)
+    else
+    	(++ ?*num*)        
+        )
+    )
 
 (defrule updateRuleFlokemonWater
-    (modifyFlokemonWater ?wid ?wn ?wg ?wd ?wl ?wp)
-    ?w<-(FLOKEMON_WATER (waterId ?wid))
+    ?f<-(modifyFlokemonWater ?wid ?wn ?wg ?wd ?wl ?wp)
+    ?fw<-(FLOKEMON_WATER)
     =>
-    (modify ?w (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp)))
-
-(defrule ruleResetId
-    (resetId)
-    ?n<-(accumulate (bind ?i 0) (++ ?i) ?i (FLOKEMON_FIRE))
-    =>
-    (printout t "Jumlahnya: " ?n crlf))
+    (if(eq ?wid ?*num*)
+        then
+        (modify ?fw (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+        (retract ?f)
+        (bind ?*num* 1)
+    else
+        (++ ?*num*)
+        )
+    )
 
 (deffunction viewFlokemonFire ()
     (printout t "Fire Flokemon List" crlf)
@@ -302,6 +314,7 @@
 (reset)
 (bind ?choose 0)
 (while (neq ?choose 6)
+    (bind ?*num* 1)
     (run)
     (menu)
     (bind ?choose 0)
@@ -337,7 +350,6 @@
     			(readline)        
 		     else
              )
-                 
 	    )
         
         
@@ -390,7 +402,6 @@
                 then (cls)
                 (viewFlokemonFire)
                 (updateFlokemonFire)
-               	(assert (resetId))
                 (printout t)
                 (printout t "Successfully update fire flokemon!" crlf)
                 (printout t "Press ENTER to continue ..." crlf)
@@ -400,7 +411,6 @@
                 then (cls)
                 (viewFlokemonWater)
                	(updateFlokemonWater)
-               	(assert (resetId))
                 (printout t)
                 (printout t "Successfully update water flokemon!" crlf)
                 (printout t "Press ENTER to continue ..." crlf)
@@ -468,17 +478,18 @@
         (printout t "Find Flokemon" crlf)
         (printout t "-----------------" crlf)
         (bind ?type "")
-        (while (and (eq (lexemep ?type) FALSE ) (neq (str-compare ?type "Fire") 0 ) (neq (str-compare ?type "Water") 0 ))
+
+        (while (and (neq (eq (lexemep ?type) FALSE ) (neq (str-compare ?type "Fire") 0 ) (neq (str-compare ?type "Water") 0 )))
             (printout t "Demanded type [Fire | Water]: ")
         	(bind ?type (read)))            
             
     	(bind ?power "")
-        (while (and (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 ))
+        (while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
             (printout t "Demanded power [Weak | Strong]: ")
         	(bind ?power (read)))            
             
 		(bind ?defense "")
-        (while (and (neq (eq (lexemep ?defense) FALSE ) (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 ))
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
             (printout t "Demanded defense [Soft | Hard]: ")
         	(bind ?defense (read)))
         
