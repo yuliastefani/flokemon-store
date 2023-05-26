@@ -1,4 +1,4 @@
-package Java;
+package main;
 
 import jess.JessException;
 import jess.Rete;
@@ -10,7 +10,7 @@ public class Main {
 	public Main() {
 		try {
 			engine = new Rete();
-			engine.batch("Java/main.clp");
+			engine.batch("main/main.clp");
 		} catch (JessException e) {
 			e.printStackTrace();
 		}
