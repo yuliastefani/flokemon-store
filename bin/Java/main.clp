@@ -43,6 +43,39 @@
 	(FLOKEMON_WATER (waterId 1) (waterName "Vaporeon") (waterDmg 900) (waterDfs 120) (waterLvl 45) (waterPrc 80000))
 )
 
+(deftemplate Flokemon_Fire_Match
+	(slot matchFId)
+    (slot matchFName)
+    (slot matchFDmg)
+    (slot matchFDfs)
+    (slot matchFLvl)
+    (slot matchFBurn)
+    (slot matchFPrc)
+)
+
+(deftemplate Flokemon_Water_Match
+	(slot matchWId)
+    (slot matchWName)
+    (slot matchWDmg)
+    (slot matchWDfs)
+    (slot matchWLvl)
+    (slot matchWPrc)
+)
+
+(defrule deleteFireMatch
+    (deleteFireMatch)
+	?i <- (Flokemon_Fire_Match)
+	=>
+    (retract ?i)
+)
+
+(defrule deleteWaterMatch
+    (deleteWaterMatch)
+	?i <- (Flokemon_Water_Match)
+	=>
+    (retract ?i)
+)
+
 (deffunction menu ()
     (cls)
 	(printout t "+======================+" crlf)
@@ -69,6 +102,7 @@
     ?*numFlokemonFire* = 5
     ?*numFlokemonWater* = 5 
     ?*num* = 1
+    ?*number* = 1
 )
 
 (defrule viewRuleFlokemonFire
@@ -126,8 +160,351 @@
         (bind ?*num* 1)
     else
         (++ ?*num*)
-        )
     )
+)
+
+(deffunction retract-i ()
+	(++ ?*number*)
+    (if (eq ?*number* 10)
+        then (retract ?i)   
+        (bind ?*number* 1)
+    )
+)
+
+(deffunction foundFireFlokemon ()
+	(if (eq ?confirm "Y")
+        then (bind ?matchFId 0)
+        (if (and (<= ?lvl ?fl) (>= ?budget ?fp))
+            then (assert (Flokemon_Fire_Match (matchFId ?matchFId) (matchFName ?fn) (matchFDmg ?fg) (matchFDfs ?fd) (matchFLvl ?fl) (matchFBurn ?fb) (matchFPrc ?fp)))
+            (facts)
+         )
+     elif (eq ?confirm "N")
+        then )
+)
+
+(deffunction foundWaterFlokemon ()
+	(if (eq ?confirm "Y")
+        then (bind ?matchWId 0)
+        (if (and (<= ?lvl ?wl) (>= ?budget ?wp))
+            then (assert (Flokemon_Water_Match (matchWId ?matchFId) (matchWName ?wn) (matchWDmg ?wg) (matchWDfs ?wd) (matchWLvl ?wl) (matchWPrc ?wp)))
+            (facts)
+         )
+     elif (eq ?confirm "N")
+        then )
+)
+
+(defrule Fire
+    ?i<-(Fire)
+    =>
+    (bind ?power "")
+    (while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
+        (printout t "Demanded power [Weak | Strong]: ")
+        (bind ?power (readline)))
+    (if (eq ?power "Weak")
+        then (assert(FireWeak))
+     elif (eq ?power "Strong")
+        then (assert(FireStrong))
+    )
+    (retract-i)
+)
+
+(defrule FireWeak
+	?i<-(FireWeak)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (< ?fg 1000) (eq ?type "Fire")) 
+        then (bind ?defense "")
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
+            (printout t "Demanded defense [Soft | Hard]: ")
+            (bind ?defense (readline)))
+        (if (eq ?defense "Soft")
+            then (assert(FireWeakSoft))
+         elif (eq ?defense "Hard")
+            then (assert(FireWeakHard))
+         )   
+    )
+    (retract-i)
+)
+
+(defrule FireStrong
+	?i<-(FireStrong)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (>= ?fg 1000) (eq ?type "Fire")) 
+        then (bind ?defense "")
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
+            (printout t "Demanded defense [Soft | Hard]: ")
+            (bind ?defense (readline)))
+        (if (eq ?defense "Soft")
+            then (assert(FireStrongSoft))
+         elif (eq ?defense "Hard")
+            then (assert(FireStrongHard))
+         )
+    )
+    
+    (retract-i)
+)
+
+(defrule FireWeakSoft
+	?i<-(FireWeakSoft)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (< ?fd 100) (< ?fg 1000) (eq ?type "Fire"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        (foundFireFlokemon)
+        )
+    
+    (retract-i)
+)
+
+(defrule FireWeakHard
+	?i<-(FireWeakHard)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (< ?fd 100) (> ?fg 1000) (eq ?type "Fire"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundFireFlokemon)
+    )
+    (retract-i)
+)
+
+(defrule FireStrongSoft
+	?i<-(FireStrongSoft)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (> ?fd 100) (< ?fg 1000) (eq ?type "Fire"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundFireFlokemon)
+    )
+    
+    (retract-i)
+    
+)
+
+(defrule FireStrongHard
+	?i<-(FireStrongHard)
+    (FLOKEMON_FIRE (fireName ?fn) (fireDmg ?fg) (fireDfs ?fd) (fireLvl ?fl) (fireBurn ?fb) (firePrc ?fp))
+	=>
+    (if (and (> ?fd 100) (> ?fg 1000) (eq ?type "Fire"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundFireFlokemon)
+    )
+    
+    (retract-i)
+    
+)
+
+(defrule Water
+    ?i<-(Water)
+    =>
+    (bind ?power "")
+    (while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
+        (printout t "Demanded power [Weak | Strong]: ")
+        (bind ?power (readline)))
+    (if (eq ?power "Weak")
+        then (assert(WaterWeak))
+     elif (eq ?power "Strong")
+        then (assert(WaterStrong))
+    )
+    
+    (retract-i)
+)
+
+(defrule WaterWeak
+	?i<-(WaterWeak)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (< ?wg 1000) (eq ?type "Water")) 
+        then (bind ?defense "")
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
+            (printout t "Demanded defense [Soft | Hard]: ")
+            (bind ?defense (readline)))
+        (if (eq ?defense "Soft")
+            then (assert(WaterWeakSoft))
+         elif (eq ?defense "Hard")
+            then (assert(WaterWeakHard))
+         )   
+    )
+    (retract-i)
+)
+
+(defrule WaterStrong
+	?i<-(WaterStrong)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (> ?wg 1000) (eq ?type "Water"))
+        then (bind ?defense "")
+        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
+            (printout t "Demanded defense [Soft | Hard]: ")
+            (bind ?defense (readline)))
+        (if (eq ?defense "Soft")
+            then (assert(WaterStrongSoft))
+         elif (eq ?defense "Hard")
+            then (assert(WaterStrongHard))
+         )
+    )
+    
+    (retract-i)
+)
+
+(defrule WaterWeakSoft
+	?i<-(WaterWeakSoft)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (< ?wd 100) (< ?wg 1000) (eq ?type "Water"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundWaterFlokemon)
+    )
+    
+    (retract-i)
+)
+
+(defrule WaterWeakHard
+	?i<-(WaterWeakHard)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (< ?wd 100) (> ?wg 1000) (eq ?type "Water"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundWaterFlokemon)
+    )
+    (retract-i)
+)
+
+(defrule WaterStrongSoft
+	?i<-(WaterStrongSoft)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (> ?wd 100) (< ?wg 1000) (eq ?type "Water"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundWaterFlokemon)
+    )
+    
+    (retract-i)
+)
+
+(defrule WaterStrongHard
+	?i<-(WaterStrongHard)
+    (FLOKEMON_WATER (waterName ?wn) (waterDmg ?wg) (waterDfs ?wd) (waterLvl ?wl) (waterPrc ?wp))
+	=>
+    (if (and (> ?wd 100) (> ?wg 1000) (eq ?type "Water"))
+        then (bind ?lvl 0)
+        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+            (printout t "Demanded minimum flokemon level [1 - 100]: ")
+            (bind ?lvl (read)))
+        
+        (bind ?budget 0)
+        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+            (printout t "Budget for flokemon [1000 - 1000000]: ")
+        	(bind ?budget (read)))
+        
+        (bind ?confirm "")
+        (while (and (neq (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 )))
+            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        	(bind ?confirm (readline)))
+        
+        (foundWaterFlokemon)
+    )
+    (retract-i)
+)
+
+
 
 (deffunction viewFlokemonFire ()
     (printout t "Fire Flokemon List" crlf)
@@ -481,32 +858,38 @@
 
         (while (and (neq (eq (lexemep ?type) FALSE ) (neq (str-compare ?type "Fire") 0 ) (neq (str-compare ?type "Water") 0 )))
             (printout t "Demanded type [Fire | Water]: ")
-        	(bind ?type (read)))            
+        	(bind ?type (readline)))
+        (if (eq ?type "Fire")
+            then (assert (Fire))
+         elif (eq ?type "Water")
+            then (assert (Water))
+        )
+        (run)
+        
+    	;(bind ?power "")
+        ;(while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
+        ;    (printout t "Demanded power [Weak | Strong]: ")
+        ;	(bind ?power (read)))
             
-    	(bind ?power "")
-        (while (and (neq (eq (lexemep ?power) FALSE ) (neq (str-compare ?power "Weak") 0 ) (neq (str-compare ?power "Strong") 0 )))
-            (printout t "Demanded power [Weak | Strong]: ")
-        	(bind ?power (read)))            
-            
-		(bind ?defense "")
-        (while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
-            (printout t "Demanded defense [Soft | Hard]: ")
-        	(bind ?defense (read)))
+		;(bind ?defense "")
+        ;(while (and (neq (eq (lexemep ?defense) FALSE ) (neq (str-compare ?defense "Soft") 0 ) (neq (str-compare ?defense "Hard") 0 )))
+        ;    (printout t "Demanded defense [Soft | Hard]: ")
+        ;	(bind ?defense (read)))
         
-        (bind ?lvl 0)
-        (while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
-            (printout t "Demanded minimum flokemon level [1 - 100]: ")
-        	(bind ?lvl (read)))            
+        ;(bind ?lvl 0)
+        ;(while (or (eq (lexemep ?lvl) TRUE ) (< ?lvl 1) (> ?lvl 100))
+        ;    (printout t "Demanded minimum flokemon level [1 - 100]: ")
+        ;	(bind ?lvl (read)))
         
-        (bind ?budget 0)
-        (while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
-            (printout t "Budget for flokemon [1000 - 1000000]: ")
-        	(bind ?budget (read)))    
+        ;(bind ?budget 0)
+        ;(while (or (eq (lexemep ?budget) TRUE ) (< ?budget 1000) (> ?budget 1000000))
+        ;    (printout t "Budget for flokemon [1000 - 1000000]: ")
+        ;	(bind ?budget (read)))
         
-        (bind ?confirm "")
-        (while (and (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 ))
-            (printout t "Are you sure to find this type of flokemon [Y | N]: ")
-        	(bind ?confirm (read)))   
+        ;(bind ?confirm "")
+        ;(while (and (eq (lexemep ?confirm) FALSE ) (neq (str-compare ?confirm "Y") 0 ) (neq (str-compare ?confirm "N") 0 ))
+        ;    (printout t "Are you sure to find this type of flokemon [Y | N]: ")
+        ;	(bind ?confirm (readline)))
         
     else
         (printout t "Thank You for using this program! ^^" crlf)
