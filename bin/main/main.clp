@@ -246,7 +246,6 @@
 	                then (assert (Flokemon_Match (name ?fn) (damage ?fg) (defense ?fd) (level ?fl) (burn_damage ?fb) (price ?fp)))
 	                (assert (Flokemon_demand (type "Fire") (power "Weak") (defense "Soft") (size ?*lvl*) (price ?*budget*)))
             	)
-                (new main.GUI)
          	)
         )
     (retract-i ?i)
@@ -264,7 +263,6 @@
 	                then (assert (Flokemon_Match (name ?fn) (damage ?fg) (defense ?fd) (level ?fl) (burn_damage ?fb) (price ?fp)))
 	                (assert (Flokemon_demand (type "Fire") (power "Weak") (defense "Hard") (size ?*lvl*) (price ?*budget*)))
             	)
-                (new main.GUI)
          	)
         )
     (retract-i ?i)
@@ -282,7 +280,6 @@
 	                then (assert (Flokemon_Match (name ?fn) (damage ?fg) (defense ?fd) (level ?fl) (burn_damage ?fb) (price ?fp)))
 	                (assert (Flokemon_demand (type "Fire") (power "Strong") (defense "Soft") (size ?*lvl*) (price ?*budget*)))
             	)	
-                (new main.GUI)
          	)
         )
     (retract-i ?i)
@@ -300,7 +297,6 @@
 	                then (assert (Flokemon_Match (name ?fn) (damage ?fg) (defense ?fd) (level ?fl) (burn_damage ?fb) (price ?fp)))
 	                (assert (Flokemon_demand (type "Fire") (power "Strong") (defense "Hard") (size ?*lvl*) (price ?*budget*)))
             	)
-            (new main.GUI)
          )
         
     )
@@ -372,7 +368,6 @@
         )
     )
     
-    (new main.GUI)
     (retract-i ?i)
 )
 
@@ -391,8 +386,6 @@
         )
     )
     
-    (new main.GUI)
-    
     (retract-i ?i)
 )
 
@@ -408,7 +401,6 @@
                 then (assert (Flokemon_Match (name ?wn) (damage ?wg) (defense ?wd) (level ?wl) (price ?wp)))
                 (assert (Flokemon_demand (type "Water") (power "Strong") (defense "Soft") (size ?*lvl*) (price ?*budget*)))
              )
-             (new main.GUI)
         )
     )
     (retract-i ?i)
@@ -426,7 +418,6 @@
                 then (assert (Flokemon_Match (name ?wn) (damage ?wg) (defense ?wd) (level ?wl) (price ?wp)))
                 (assert (Flokemon_demand (type "Water") (power "Strong") (defense "Hard") (size ?*lvl*) (price ?*budget*)))
              )
-            (new main.GUI)
         )
     )
     (retract-i ?i)
@@ -812,6 +803,7 @@
             then (assert (Water))
         )
         (run)
+        (new main.GUI)
         
     else
         (printout t "Thank You for using this program! ^^" crlf)
