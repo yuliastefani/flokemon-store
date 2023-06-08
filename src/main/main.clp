@@ -70,7 +70,7 @@
 
 (defrule deleteMatch
     (deleteMatch)
-	?i <- (Flokemon_Match)
+	?i <- (Flokemon_Match (name ?name) (damage ?damage) (defense ?defense) (level ?level) (burn_damage ?burn_damage) (price ?price))
 	=>
     (retract ?i)
 )
@@ -82,6 +82,22 @@
     (assert (deleteMatch))
     (run)
     (retract-string "(deleteMatch)")
+)
+
+(defrule deleteDemand
+    (deleteDemand)
+	?i <- (Flokemon_demand (type ?type) (power ?power) (defense ?defense) (size ?size) (price ?price))
+	=>
+    (retract ?i)
+)
+
+(defrule foundDemandFlokemon
+	(foundDemandFlokemon)
+    (Flokemon_demand (type ?type) (power ?power) (defense ?defense) (size ?size) (price ?price))
+	=>
+    (assert (deleteDemand))
+    (run)
+    (retract-string "(deleteDemand)")
 )
 
 (deffunction menu()
@@ -804,6 +820,12 @@
         )
         (run)
         (new main.GUI)
+        (assert (foundFlokemon))
+        (run)
+        (retract-string "(foundFlokemon)")
+        (assert (foundDemandFlokemon))
+        (run)
+        (retract-string "(foundDemandFlokemon)")
         
     else
         (printout t "Thank You for using this program! ^^" crlf)

@@ -70,7 +70,7 @@
 
 (defrule deleteMatch
     (deleteMatch)
-	?i <- (Flokemon_Match)
+	?i <- (Flokemon_Match (name ?name) (damage ?damage) (defense ?defense) (level ?level) (burn_damage ?burn_damage) (price ?price))
 	=>
     (retract ?i)
 )
@@ -804,6 +804,9 @@
         )
         (run)
         (new main.GUI)
+        (assert (foundFlokemon))
+        (run)
+        (retract-string "(foundFlokemon)")
         
     else
         (printout t "Thank You for using this program! ^^" crlf)
